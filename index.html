@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Macro Calculator — Based Coaching</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
+<style>
+[hidden]{display:none!important}
+:root {
+  --bg: #0C0C0E;
+  --card: #16161A;
+  --card2: #1E1E24;
+  --border: #2A2A32;
+  --fg: #F0EFF4;
+  --fg2: #8A8A9A;
+  --accent: #E07828;
+  --accent-dim: rgba(224,120,40,0.12);
+  --accent-hover: #F08030;
+  --green: #3CB87A;
+  --blue: #4B9EF5;
+  --yellow: #F0C040;
+  --red: #E84C4C;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-inline: 16px;
+  padding-block: 32px 48px;
+  min-height: 100%;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+  max-width: 580px;
+  margin-inline: auto;
+}
+.header .eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.header h1 {
+  font-size: clamp(24px, 5vw, 34px);
+  font-weight: 800;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin-bottom: 10px;
+}
+.header .sub {
+  font-size: 14px;
+  color: var(--fg2);
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+/* ── STEPPER ── */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 320px;
+  margin: 0 auto 32px;
+  gap: 0;
+}
+.s-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.s-circle {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  color: var(--fg2);
+  background: var(--card);
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.s-node.active .s-circle { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.s-node.done .s-circle { border-color: var(--green); color: var(--bg); background: var(--green); }
+.s-label { font-size: 10px; color: var(--fg2); font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
+.s-node.active .s-label { color: var(--fg); }
+.s-line { flex: 1; height: 2px; background: var(--border); margin: 0 8px; margin-bottom: 14px; }
+.s-node.done ~ .s-line, .s-node.done + .s-line { background: var(--green); }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 600px;
+  margin-inline: auto;
+  margin-bottom: 14px;
+}
+.card h2 { font-size: 17px; font-weight: 700; margin-bottom: 22px; }
+
+/* ── FORM FIELDS ── */
+.field { margin-bottom: 20px; }
+.field:last-child { margin-bottom: 0; }
+.field > label {
+  display: block;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg2); margin-bottom: 8px;
+}
+.field-row { display: flex; gap: 10px; }
+.field-row .field { flex: 1; margin-bottom: 0; }
+
+select, input[type="number"], input[type="text"], input[type="password"] {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+select:focus, input:focus { border-color: var(--accent); }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.field-error { color: var(--red); font-size: 12px; margin-top: 5px; min-height: 16px; }
+
+/* ── TOGGLE BUTTONS (sex, bool) ── */
+.tog-row { display: flex; gap: 8px; }
+.tog-btn {
+  flex: 1; padding: 10px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--fg2);
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+}
+.tog-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* ── BF SLIDER ── */
+.bf-row { display: flex; gap: 10px; align-items: center; }
+.bf-slider {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 5px; border-radius: 3px;
+  background: var(--border); outline: none; cursor: pointer;
+  transition: background .15s;
+}
+.bf-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.bf-slider::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); border: 3px solid var(--bg);
+  cursor: pointer;
+}
+.bf-num-wrap { position: relative; width: 68px; flex-shrink: 0; }
+.bf-num { text-align: right; padding-right: 28px !important; }
+.bf-pct {
+  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+  color: var(--fg2); font-size: 14px; pointer-events: none;
+}
+.bf-hint { font-size: 12px; color: var(--fg2); margin-top: 6px; font-style: italic; }
+
+/* ── JOB GRID ── */
+.job-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.job-btn {
+  padding: 14px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+  line-height: 1.3;
+}
+.job-name { display: block; font-size: 14px; font-weight: 700; }
+.job-sub { display: block; font-size: 11px; color: var(--fg2); margin-top: 3px; }
+.job-btn.active { border-color: var(--accent); background: var(--accent-dim); }
+.job-btn.active .job-name { color: var(--accent); }
+.job-btn.active .job-sub { color: var(--accent); opacity: .65; }
+
+/* ── TRAINING DAYS ── */
+.days-row { display: flex; gap: 5px; }
+.day-btn {
+  flex: 1; padding: 10px 0;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg2);
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+  min-width: 0;
+}
+.day-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+/* ── SWITCH ── */
+.toggle-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--card2);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.toggle-info .tl { font-size: 14px; font-weight: 600; }
+.toggle-info .ts { font-size: 12px; color: var(--fg2); margin-top: 2px; }
+.switch { position: relative; width: 46px; height: 25px; flex-shrink: 0; }
+.switch input { opacity: 0; position: absolute; }
+.sw-track {
+  position: absolute; inset: 0; border-radius: 13px;
+  background: var(--border); cursor: pointer; transition: background .2s;
+}
+.sw-track::after {
+  content: ''; position: absolute;
+  width: 19px; height: 19px; border-radius: 50%;
+  background: #fff; top: 3px; left: 3px;
+  transition: transform .2s;
+}
+.switch input:checked + .sw-track { background: var(--accent); }
+.switch input:checked + .sw-track::after { transform: translateX(21px); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: block; width: 100%; padding: 13px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 9px;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background .15s;
+  text-align: center;
+}
+.btn:hover { background: var(--accent-hover); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-ghost {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--fg2);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.btn-row { display: flex; gap: 8px; }
+.btn-row .btn { flex: 1; }
+
+/* ── RESULTS ── */
+.results-eyebrow {
+  text-align: center; margin-bottom: 28px;
+}
+.results-eyebrow .re { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.results-eyebrow h2 { font-size: 26px; font-weight: 800; }
+
+/* Stats chips */
+.stats-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.stat-chip {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 10px 14px;
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 80px; flex: 1;
+}
+.stat-chip .sv { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stat-chip .sl { font-size: 10px; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; white-space: nowrap; }
+
+.ffmi-warn {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(240,192,64,0.08);
+  border: 1px solid rgba(240,192,64,0.25);
+  border-radius: 8px;
+  font-size: 13px; color: var(--yellow);
+}
+
+/* Phase card */
+.phase-card {
+  border-radius: 14px; padding: 20px;
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  max-width: 600px; margin-inline: auto;
+}
+.phase-card.cut   { background: rgba(232,76,76,0.07); border-color: rgba(232,76,76,0.25); }
+.phase-card.bulk  { background: rgba(60,184,122,0.07); border-color: rgba(60,184,122,0.25); }
+.phase-card.maintain { background: rgba(75,158,245,0.07); border-color: rgba(75,158,245,0.25); }
+.phase-card.reverse  { background: rgba(240,192,64,0.07); border-color: rgba(240,192,64,0.25); }
+
+.phase-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 100px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.phase-badge.cut     { background: rgba(232,76,76,0.18); color: #E84C4C; }
+.phase-badge.bulk    { background: rgba(60,184,122,0.18); color: #3CB87A; }
+.phase-badge.maintain{ background: rgba(75,158,245,0.18); color: #4B9EF5; }
+.phase-badge.reverse { background: rgba(240,192,64,0.18); color: #F0C040; }
+
+.phase-title { font-size: 21px; font-weight: 800; margin-bottom: 8px; }
+.phase-reason { font-size: 14px; color: var(--fg2); line-height: 1.65; }
+
+/* Section label */
+.sec-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--fg2); margin-bottom: 12px;
+}
+
+/* Macro grid */
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 420px) { .macro-grid { grid-template-columns: repeat(2, 1fr); } }
+.m-tile {
+  background: var(--card2); border-radius: 9px;
+  padding: 14px 10px; text-align: center;
+}
+.m-val { font-size: clamp(18px, 4vw, 24px); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; margin-bottom: 4px; }
+.m-unit { font-size: 10px; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.05em; }
+.m-label { font-size: 11px; color: var(--fg2); margin-top: 3px; }
+.m-tile.cal .m-val    { color: var(--accent); }
+.m-tile.protein .m-val{ color: var(--blue); }
+.m-tile.carbs .m-val  { color: var(--green); }
+.m-tile.fat .m-val    { color: var(--yellow); }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin-block: 16px; }
+
+/* Split tabs */
+.split-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.split-tab {
+  flex: 1; padding: 8px;
+  text-align: center; font-size: 13px; font-weight: 700;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  background: var(--bg); color: var(--fg2);
+  cursor: pointer; transition: all .15s;
+}
+.split-tab.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+/* Lock section */
+.lock-wrap {
+  border: 1px dashed var(--border);
+  border-radius: 14px; padding: 28px 20px;
+  max-width: 600px; margin-inline: auto;
+  margin-bottom: 14px; text-align: center;
+}
+.lock-icon { font-size: 30px; margin-bottom: 10px; }
+.lock-wrap h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.lock-wrap p { font-size: 14px; color: var(--fg2); margin-bottom: 20px; }
+.lock-row { display: flex; gap: 8px; max-width: 300px; margin-inline: auto; }
+.lock-err { color: var(--red); font-size: 13px; margin-top: 8px; }
+
+/* Client section */
+.client-card {
+  background: var(--card);
+  border: 1px solid rgba(224,120,40,.35);
+  border-radius: 14px; padding: 24px;
+  max-width: 600px; margin-inline: auto;
+  margin-bottom: 14px;
+}
+.client-badge {
+  display: inline-block;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 100px; margin-bottom: 12px;
+}
+
+/* CTA */
+.cta-card {
+  background: linear-gradient(135deg, rgba(224,120,40,.12), rgba(224,120,40,.04));
+  border: 1px solid rgba(224,120,40,.3);
+  border-radius: 14px; padding: 24px;
+  max-width: 600px; margin-inline: auto;
+  margin-bottom: 14px; text-align: center;
+}
+.cta-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+.cta-card p { font-size: 14px; color: var(--fg2); margin-bottom: 18px; }
+.cta-btn {
+  display: inline-block; padding: 12px 28px;
+  background: var(--accent); color: #fff;
+  border-radius: 9px; font-family: inherit;
+  font-size: 14px; font-weight: 700;
+  text-decoration: none;
+  cursor: pointer; border: none;
+  transition: background .15s;
+}
+.cta-btn:hover { background: var(--accent-hover); }
+
+/* Recalc */
+.recalc-wrap { max-width: 600px; margin-inline: auto; margin-bottom: 14px; }
+
+/* Footer */
+footer {
+  text-align: center; color: var(--fg2);
+  font-size: 12px; margin-top: 48px;
+  line-height: 1.7;
+}
+footer a { color: var(--accent); text-decoration: none; }
+
+/* ── PHASE SELECTOR ── */
+.phase-sel-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.phase-sel-btn {
+  flex: 1; min-width: 70px; padding: 11px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--fg2);
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+  text-align: center; line-height: 1.35;
+}
+.phase-sel-btn.active {
+  border-color: var(--pcolor, var(--accent));
+  color: var(--pcolor, var(--accent));
+  background: rgba(128,128,128,0.07);
+}
+.rec-badge {
+  display: inline-block;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 9px; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 7px; border-radius: 100px;
+  vertical-align: middle; margin-left: 5px;
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .job-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<!-- HEADER -->
+<header class="header">
+  <div class="eyebrow">Based Coaching</div>
+  <h1>Precision Macro Calculator</h1>
+  <p class="sub">Built on powerlifting science. Find your exact calories, protein, carbs &amp; fat in under 2 minutes.</p>
+</header>
+
+<!-- STEPPER -->
+<div class="stepper">
+  <div class="s-node active" id="si1">
+    <div class="s-circle">1</div>
+    <div class="s-label">About You</div>
+  </div>
+  <div class="s-line" id="sl1"></div>
+  <div class="s-node" id="si2">
+    <div class="s-circle">2</div>
+    <div class="s-label">Activity</div>
+  </div>
+  <div class="s-line" id="sl2"></div>
+  <div class="s-node" id="si3">
+    <div class="s-circle">3</div>
+    <div class="s-label">Results</div>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div id="step1" class="card">
+  <h2>Step 1 — About You</h2>
+
+  <div class="field">
+    <label>Sex</label>
+    <div class="tog-row">
+      <button class="tog-btn active" data-sex="male"   onclick="setSex('male')">Male</button>
+      <button class="tog-btn"        data-sex="female" onclick="setSex('female')">Female</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Height</label>
+    <div class="field-row">
+      <div class="field">
+        <select id="hft" onchange="onFtChange()">
+          <option value="4">4 ft</option>
+          <option value="5" selected>5 ft</option>
+          <option value="6">6 ft</option>
+        </select>
+      </div>
+      <div class="field">
+        <select id="hin"></select>
+      </div>
+    </div>
+    <div class="field-error" id="h-err"></div>
+  </div>
+
+  <div class="field">
+    <label>Bodyweight <span style="font-weight:400;text-transform:none;letter-spacing:0">(lbs)</span></label>
+    <input type="number" id="bw" placeholder="e.g. 185" min="80" max="500" oninput="onBWInput()">
+    <div class="field-error" id="bw-err"></div>
+  </div>
+
+  <div class="field">
+    <label>Age</label>
+    <input type="number" id="age" placeholder="e.g. 28" min="13" max="80" oninput="S.age = +this.value || null">
+  </div>
+
+  <div class="field">
+    <label>Body Fat % <span style="font-weight:400;text-transform:none;letter-spacing:0">(estimate is fine)</span></label>
+    <div class="bf-row">
+      <input type="range" class="bf-slider" id="bf-slide" min="3" max="50" value="18" oninput="syncBF('s')">
+      <div class="bf-num-wrap">
+        <input type="number" class="bf-num" id="bf-num" value="18" min="1" max="50" oninput="syncBF('n')" onblur="clampBF()">
+        <span class="bf-pct">%</span>
+      </div>
+    </div>
+    <div class="bf-hint" id="bf-hint"></div>
+  </div>
+
+  <button class="btn" onclick="toStep2()">Continue →</button>
+</div>
+
+<!-- STEP 2 -->
+<div id="step2" class="card" hidden>
+  <h2>Step 2 — Activity &amp; Goals</h2>
+
+  <div class="field">
+    <label>Do you already know your maintenance calories?</label>
+    <div class="tog-row">
+      <button class="tog-btn" id="btn-yes" onclick="setKnownMaint(true)">Yes — I'll enter them</button>
+      <button class="tog-btn active" id="btn-no" onclick="setKnownMaint(false)">No — estimate for me</button>
+    </div>
+  </div>
+
+  <!-- Known maintenance -->
+  <div id="known-sec" hidden>
+    <div class="field">
+      <label>Your Maintenance Calories</label>
+      <input type="number" id="maint-input" placeholder="e.g. 2850" min="1000" max="8000">
+      <div class="field-error" id="mc-err"></div>
+    </div>
+  </div>
+
+  <!-- Estimate: job type -->
+  <div id="est-sec">
+    <div class="field">
+      <label>Daily Activity Level (outside gym)</label>
+      <div class="job-grid">
+        <button class="job-btn active" data-job="sedentary" onclick="setJob('sedentary')">
+          <span class="job-name">Sedentary</span>
+          <span class="job-sub">Desk job, mostly sitting</span>
+        </button>
+        <button class="job-btn" data-job="light" onclick="setJob('light')">
+          <span class="job-name">Light</span>
+          <span class="job-sub">On your feet, moving around</span>
+        </button>
+        <button class="job-btn" data-job="active" onclick="setJob('active')">
+          <span class="job-name">Active</span>
+          <span class="job-sub">Physical labor / on feet all day</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Training days — always shown -->
+  <div class="field">
+    <label>Training Days Per Week</label>
+    <div class="days-row" id="days-row"></div>
+  </div>
+
+  <!-- Split toggle -->
+  <div class="toggle-bar">
+    <div class="toggle-info">
+      <div class="tl">Training &amp; Rest Day Macros</div>
+      <div class="ts">Higher calories on training days (~10% difference)</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="split-tog">
+      <div class="sw-track"></div>
+    </label>
+  </div>
+
+  <!-- Yo-yo history -->
+  <div class="field">
+    <label>Yo-yo dieting history? <span style="font-weight:400;text-transform:none;letter-spacing:0">(repeated cut → rapid weight regain cycles)</span></label>
+    <div class="tog-row">
+      <button class="tog-btn" id="yoyo-yes" onclick="setYoyo(true)">Yes</button>
+      <button class="tog-btn active" id="yoyo-no" onclick="setYoyo(false)">No</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="toStep1()">← Back</button>
+    <button class="btn" onclick="runCalc()">Calculate My Macros →</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" hidden>
+  <div class="results-eyebrow">
+    <div class="re">Your Results</div>
+    <h2>Here's your plan.</h2>
+  </div>
+
+  <!-- Stats -->
+  <div class="card">
+    <div class="sec-label">Your Numbers</div>
+    <div class="stats-row" id="stats-row"></div>
+    <div id="ffmi-warn" hidden class="ffmi-warn">
+      ⚡ Your FFMI is approaching the natural ceiling (23+). Focus on mastering your current strength before pushing for more size.
+    </div>
+  </div>
+
+  <!-- Phase recommendation -->
+  <div id="phase-card"></div>
+
+  <!-- Maintenance macros -->
+  <div class="card">
+    <div class="sec-label">Estimated Maintenance</div>
+    <div id="maint-macros" class="macro-grid"></div>
+  </div>
+
+  <!-- Phase-target macros -->
+  <div class="card">
+    <div class="sec-label" id="phase-sec-label">Your Target</div>
+    <div id="phase-macros" class="macro-grid"></div>
+    <div id="phase-note" style="font-size:12px;color:var(--fg2);margin-top:12px;line-height:1.6;"></div>
+  </div>
+
+  <!-- Training/rest split -->
+  <div class="card" id="split-card" hidden>
+    <div class="sec-label">Training &amp; Rest Day Split</div>
+    <div class="split-tabs">
+      <button class="split-tab active" onclick="splitTab('t')">🏋 Training Day</button>
+      <button class="split-tab" onclick="splitTab('r')">😴 Rest Day</button>
+    </div>
+    <div id="split-t" class="macro-grid"></div>
+    <div id="split-r" class="macro-grid" hidden></div>
+    <div style="font-size:12px;color:var(--fg2);margin-top:12px;text-align:center">
+      10% calorie difference · weekly average equals your phase target
+    </div>
+  </div>
+
+  <!-- Lock section -->
+  <div class="lock-wrap" id="lock-sec">
+    <div class="lock-icon">🔒</div>
+    <h3>Client Access — Block Periodization</h3>
+    <p>Training &amp; rest day macros automatically adjusted through your training block. Clients only.</p>
+    <div class="lock-row">
+      <input type="password" id="pw-inp" placeholder="Client code" onkeydown="if(event.key==='Enter')unlock()">
+      <button class="btn" style="width:80px;flex-shrink:0;padding:10px" onclick="unlock()">Unlock</button>
+    </div>
+    <div class="lock-err" id="pw-err"></div>
+  </div>
+
+  <!-- Client section -->
+  <div class="client-card" id="client-sec" hidden>
+    <div class="client-badge">Client Access Unlocked</div>
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:14px">Block Periodization</h3>
+    <div id="client-content"></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-card">
+    <h3>Want this dialed in every week?</h3>
+    <p>The Based Coaching system auto-adjusts your macros through every training block — cut, bulk, or peak. No guessing.</p>
+    <button class="cta-btn" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLScdfUY6DjnW6dKe_tO6vtliZryEx7I6XUXE_ZSAQPIYfhPYsg/viewform','_blank')">Apply for Coaching →</button>
+  </div>
+
+  <!-- Recalculate -->
+  <div class="recalc-wrap">
+    <button class="btn btn-ghost" onclick="reset()">← Recalculate</button>
+  </div>
+</div>
+
+<footer>
+  <p>Built by <a href="https://www.basedcoaching.com" target="_blank">Based Coaching</a> · BMR via Katch-McArdle · Targets derived from FFMI 25 (M) / FFMI 22 (F)</p>
+  <p>Results are starting estimates. Adjust based on 2–4 weeks of real-world feedback.</p>
+</footer>
+
+</div><!-- /app -->
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const S = {
+  sex: 'male', hFt: 5, hIn: 9,
+  age: null,
+  bw: null, bf: 18,
+  knownMaint: false, maintCals: null,
+  job: 'sedentary', days: 4,
+  splitOn: false,
+  yoyoDieter: false,
+  selectedPhase: 'maintain',
+  selectedRate:  'medium',
+};
+let R = null; // base calc results — populated by runCalc(), used by phase selector
+
+// ─── HEIGHT ──────────────────────────────────────────────────────────────────
+function buildHIn() {
+  const ft = +document.getElementById('hft').value;
+  const sel = document.getElementById('hin');
+  sel.innerHTML = '';
+  const lo = ft === 4 ? 6 : 0;
+  const hi = ft === 6 ? 8 : 11;
+  for (let i = lo; i <= hi; i++) {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = `${i} in`; sel.appendChild(o);
+  }
+  // restore or pick sensible default
+  const want = (ft === S.hFt) ? S.hIn : (ft === 5 ? 9 : lo);
+  sel.value = Math.min(Math.max(want, lo), hi);
+  S.hFt = ft; S.hIn = +sel.value;
+}
+buildHIn();
+
+function onFtChange() {
+  S.hFt = +document.getElementById('hft').value;
+  buildHIn();
+}
+document.getElementById('hin').addEventListener('change', () => { S.hIn = +document.getElementById('hin').value; });
+
+// ─── SEX ─────────────────────────────────────────────────────────────────────
+function setSex(v) {
+  S.sex = v;
+  document.querySelectorAll('[data-sex]').forEach(b => b.classList.toggle('active', b.dataset.sex === v));
+  updateBFHint();
+}
+
+// ─── BF ──────────────────────────────────────────────────────────────────────
+function syncBF(src) {
+  const sl = document.getElementById('bf-slide');
+  const nm = document.getElementById('bf-num');
+  if (src === 's') { nm.value = sl.value; S.bf = +sl.value; }
+  else {
+    const raw = nm.value.trim();
+    if (raw === '') { S.bf = null; }
+    else { const v = parseFloat(raw); if (!isNaN(v) && v >= 1 && v <= 50) { sl.value = v; S.bf = v; } }
+  }
+  updateBFHint();
+}
+
+function clampBF() {
+  const nm = document.getElementById('bf-num');
+  const sl = document.getElementById('bf-slide');
+  if (nm.value.trim() === '') { S.bf = null; updateBFHint(); return; }
+  const v = Math.min(50, Math.max(3, parseFloat(nm.value) || 18));
+  nm.value = v; sl.value = v; S.bf = v;
+  updateBFHint();
+}
+
+function updateBFHint() {
+  if (S.bf === null) {
+    const def = S.sex === 'male' ? 20 : 17.5;
+    document.getElementById('bf-hint').textContent = `Leave blank — will estimate from FFMI ${def} when you calculate`;
+    return;
+  }
+  const bf = S.bf;
+  const hints = S.sex === 'male'
+    ? [[8,'Competition prep / very lean'],[13,'Lean — visible abs'],[18,'Athletic range'],[25,'Average'],[50,'Higher body fat — cut recommended']]
+    : [[14,'Competition prep / very lean'],[20,'Lean — athletic look'],[27,'Athletic range'],[33,'Average'],[50,'Higher body fat — cut recommended']];
+  const lbl = hints.find(([t]) => bf <= t)?.[1] || '';
+  document.getElementById('bf-hint').textContent = lbl;
+}
+updateBFHint();
+
+// ─── BW ──────────────────────────────────────────────────────────────────────
+function onBWInput() {
+  const v = +document.getElementById('bw').value;
+  document.getElementById('bw-err').textContent = (v && (v < 80 || v > 500)) ? 'Please enter a weight between 80–500 lbs.' : '';
+  if (v >= 80 && v <= 500) S.bw = v;
+}
+
+// ─── KNOWN MAINT ─────────────────────────────────────────────────────────────
+function setKnownMaint(v) {
+  S.knownMaint = v;
+  document.getElementById('btn-yes').classList.toggle('active', v);
+  document.getElementById('btn-no').classList.toggle('active', !v);
+  document.getElementById('known-sec').hidden = !v;
+  document.getElementById('est-sec').hidden = v;
+}
+
+// ─── JOB ─────────────────────────────────────────────────────────────────────
+function setJob(v) {
+  S.job = v;
+  document.querySelectorAll('[data-job]').forEach(b => b.classList.toggle('active', b.dataset.job === v));
+}
+
+// ─── TRAINING DAYS ───────────────────────────────────────────────────────────
+(function() {
+  const row = document.getElementById('days-row');
+  for (let d = 1; d <= 7; d++) {
+    const b = document.createElement('button');
+    b.className = 'day-btn' + (d === 4 ? ' active' : '');
+    b.textContent = d; b.dataset.d = d;
+    b.onclick = () => setDays(d); row.appendChild(b);
+  }
+})();
+function setDays(d) {
+  S.days = d;
+  document.querySelectorAll('[data-d]').forEach(b => b.classList.toggle('active', +b.dataset.d === d));
+}
+
+// ─── STEP NAV ────────────────────────────────────────────────────────────────
+function toStep2() {
+  const bw = +document.getElementById('bw').value;
+  if (!bw || bw < 80 || bw > 500) {
+    document.getElementById('bw-err').textContent = 'Please enter your bodyweight.';
+    document.getElementById('bw').focus(); return;
+  }
+  S.bw = bw;
+  // Keep S.bf as-is; null means blank (estimate from FFMI at calc time)
+  S.hFt = +document.getElementById('hft').value; S.hIn = +document.getElementById('hin').value;
+  const ageVal = +document.getElementById('age').value;
+  S.age = ageVal >= 13 ? ageVal : null;
+
+  show('step1', false); show('step2', true); show('results', false);
+  setStepState(1, 'done'); setStepState(2, 'active'); setStepState(3, '');
+  scrollTop();
+}
+function toStep1() {
+  show('step1', true); show('step2', false); show('results', false);
+  setStepState(1, 'active'); setStepState(2, ''); setStepState(3, '');
+  scrollTop();
+}
+function reset() {
+  toStep1();
+  show('lock-sec', true); show('client-sec', false);
+  document.getElementById('pw-inp').value = '';
+  document.getElementById('pw-err').textContent = '';
+}
+function show(id, v) { document.getElementById(id).hidden = !v; }
+function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+function setStepState(n, cls) {
+  const node = document.getElementById('si'+n);
+  node.classList.remove('active','done');
+  if (cls) node.classList.add(cls);
+  const circle = node.querySelector('.s-circle');
+  circle.textContent = cls === 'done' ? '✓' : n;
+}
+
+// ─── LOOKUP TABLES ────────────────────────────────────────────────────────────
+const M_TABLE = {
+  60:{bw:140,bf:.15},61:{bw:146,bf:.15},62:{bw:152,bf:.15},
+  63:{bw:159.5,bf:.16},64:{bw:165.5,bf:.16},65:{bw:172,bf:.16},
+  66:{bw:180,bf:.17},67:{bw:187.5,bf:.17},68:{bw:194.5,bf:.17},
+  69:{bw:204,bf:.18},70:{bw:211,bf:.18},71:{bw:219,bf:.18},
+  72:{bw:229,bf:.19},73:{bw:237,bf:.19},74:{bw:245,bf:.19},
+  75:{bw:256,bf:.20},76:{bw:265,bf:.20},77:{bw:274,bf:.20},
+  78:{bw:286,bf:.21},79:{bw:295,bf:.21},80:{bw:305,bf:.21},
+};
+
+const MULT = {
+  sedentary: [1.25,1.30,1.38,1.45,1.53,1.60,1.75],
+  light:     [1.40,1.45,1.50,1.55,1.63,1.70,1.80],
+  active:    [1.50,1.55,1.60,1.65,1.73,1.80,1.90],
+};
+
+function getTargets(sex, inches) {
+  const m = inches * 0.0254;
+  if (sex === 'male') {
+    if (M_TABLE[inches]) return { idealBW: M_TABLE[inches].bw, upperBF: M_TABLE[inches].bf };
+    const lbmKg = 25 * m * m, ub = .15;
+    return { idealBW: Math.round(lbmKg / (1-ub) * 2.2046 * 2) / 2, upperBF: ub };
+  }
+  // female
+  const maleUB = (M_TABLE[inches] || M_TABLE[60]).bf;
+  const upperBF = Math.min(maleUB + .08, .40);
+  const lbmKg = 22 * m * m;
+  return { idealBW: Math.round(lbmKg / (1-upperBF) * 2.2046 * 2) / 2, upperBF };
+}
+
+function macros(kcal, lbm) {
+  const p = Math.round(lbm * 1.2);
+  const f = Math.round(lbm * 0.35);
+  const c = Math.max(0, Math.round((kcal - p*4 - f*9) / 4));
+  return { kcal: Math.round(kcal), p, f, c };
+}
+
+// ─── YO-YO ───────────────────────────────────────────────────────────────────
+function setYoyo(v) {
+  S.yoyoDieter = v;
+  document.getElementById('yoyo-yes').classList.toggle('active', v);
+  document.getElementById('yoyo-no').classList.toggle('active', !v);
+}
+
+// ─── PHASE RATES ─────────────────────────────────────────────────────────────
+const PHASE_RATES = {
+  cut:  {
+    slow:   { pct: 0.004,  label: 'Slow',   desc: '~0.4% BW/week' },
+    medium: { pct: 0.006,  label: 'Medium', desc: '~0.6% BW/week' },
+    fast:   { pct: 0.010,  label: 'Fast',   desc: '~1.0% BW/week' },
+  },
+  bulk: {
+    slow:   { pct: 0.001,  label: 'Slow',   desc: '~0.1% BW/week' },
+    medium: { pct: 0.002,  label: 'Medium', desc: '~0.2% BW/week' },
+    fast:   { pct: 0.0035, label: 'Fast',   desc: '~0.35% BW/week' },
+  },
+};
+
+// ─── MAIN CALC ────────────────────────────────────────────────────────────────
+function runCalc() {
+  // Validate step 2
+  if (S.knownMaint) {
+    const mc = +document.getElementById('maint-input').value;
+    if (!mc || mc < 1000 || mc > 8000) {
+      document.getElementById('mc-err').textContent = 'Please enter a valid calorie number.';
+      document.getElementById('maint-input').focus(); return;
+    }
+    document.getElementById('mc-err').textContent = '';
+    S.maintCals = mc;
+  }
+  S.splitOn = document.getElementById('split-tog').checked;
+
+  const inches = S.hFt * 12 + S.hIn;
+  const m = inches * 0.0254;
+  const { idealBW, upperBF } = getTargets(S.sex, inches);
+  const lowerBF = Math.max(upperBF - .08, .03);
+
+  // If BF was left blank, back-calculate from assumed FFMI (20 male / 17.5 female)
+  let usedBF = S.bf;
+  let bfEstimated = false;
+  if (usedBF === null || usedBF === undefined) {
+    bfEstimated = true;
+    const defaultFFMI = S.sex === 'male' ? 20 : 17.5;
+    const lbmKgEst = defaultFFMI * m * m;
+    const bwKgEst  = S.bw * 0.453592;
+    usedBF = Math.min(50, Math.max(3, Math.round((1 - lbmKgEst / bwKgEst) * 1000) / 10));
+  }
+
+  const lbm   = S.bw * (1 - usedBF/100);
+  const lbmKg = lbm * 0.453592;
+  const ffmi  = lbmKg / (m*m);
+  const bmr   = 370 + 21.6 * lbmKg;
+
+  function ageFactor(age) {
+    if (!age || age < 30) return 1;
+    if (age < 40) return 0.98;
+    if (age < 50) return 0.96;
+    if (age < 60) return 0.93;
+    return 0.90;
+  }
+  const ageAdj = ageFactor(S.age);
+  const tdee = S.knownMaint ? S.maintCals : Math.round(bmr * MULT[S.job][S.days-1] * ageAdj);
+  const calPerLb = tdee / S.bw;
+
+  // Suggestion logic — determines the default, NOT a forced phase
+  let suggestedPhase, suggestedRate, suggestionReason;
+
+  if (calPerLb < 12) {
+    suggestedPhase  = 'reverse';
+    suggestedRate   = null;
+    suggestionReason = `Your estimated maintenance is only ${calPerLb.toFixed(1)} cal/lb — your metabolism is suppressed. Cutting from here will cost muscle fast. The system recommends a reverse diet: add 50–100 cal/week until you reach 14–15 cal/lb, then reassess.`;
+  } else if (usedBF > upperBF * 100) {
+    suggestedPhase = 'cut';
+    if (S.yoyoDieter) {
+      suggestedRate = 'slow';
+      suggestionReason = `At ${usedBF.toFixed(1)}%${bfEstimated ? ' (est.)' : ''} BF you're above the ${(upperBF*100).toFixed(0)}% ceiling. Given your yo-yo history, the system suggests a <strong>slow cut</strong> — rapid cuts are what trigger the rebound cycle. A slow cut at ~${(PHASE_RATES.cut.slow.pct * S.bw).toFixed(1)} lb/week preserves muscle and keeps hormones stable. Body recomp (maintaining weight while shifting composition) is also worth discussing with your coach.`;
+    } else {
+      suggestedRate = 'medium';
+      suggestionReason = `At ${usedBF.toFixed(1)}%${bfEstimated ? ' (est.)' : ''} BF you're above the ${(upperBF*100).toFixed(0)}% ceiling for your height. A medium cut at ~${(PHASE_RATES.cut.medium.pct * S.bw).toFixed(1)} lb/week gets you into your optimal window without sacrificing too much muscle.`;
+    }
+  } else if (usedBF < lowerBF * 100) {
+    suggestedPhase  = 'bulk';
+    suggestedRate   = 'medium';
+    suggestionReason = `At ${usedBF.toFixed(1)}%${bfEstimated ? ' (est.)' : ''} BF you're below the optimal floor of ${(lowerBF*100).toFixed(0)}% for your height. A medium bulk builds the muscle base you need while keeping fat gain controlled.`;
+  } else if (S.bw < idealBW) {
+    suggestedPhase  = 'bulk';
+    suggestedRate   = 'slow';
+    suggestionReason = `Your BF is in the right window but you're ${(idealBW - S.bw).toFixed(0)} lbs under your ideal of ${idealBW.toFixed(0)} lbs. A slow lean bulk keeps you inside your BF window while you build.`;
+  } else {
+    suggestedPhase  = 'maintain';
+    suggestedRate   = null;
+    if (S.yoyoDieter) {
+      suggestionReason = `You're inside your optimal BF window (${(lowerBF*100).toFixed(0)}–${(upperBF*100).toFixed(0)}%) at or above ideal bodyweight. Given your yo-yo history, maintenance is the smartest base — let your body stabilize at this intake before attempting a phase change.`;
+    } else {
+      suggestionReason = `You're at or above your ideal bodyweight and inside your optimal BF window (${(lowerBF*100).toFixed(0)}–${(upperBF*100).toFixed(0)}%). Maintenance is the smart call — nail the training, hit the numbers.`;
+    }
+  }
+
+  R = { tdee, lbm, lbmKg, ffmi, idealBW, upperBF, lowerBF, usedBF, bfEstimated, ageAdj, suggestedPhase, suggestedRate, suggestionReason };
+  S.selectedPhase = suggestedPhase;
+  S.selectedRate  = suggestedRate || 'medium';
+
+  renderStats();
+  renderPhaseSelector();
+  updatePhaseMacros();
+
+  show('step1', false); show('step2', false); show('results', true);
+  setStepState(1,'done'); setStepState(2,'done'); setStepState(3,'active');
+  scrollTop();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderStats() {
+  const { lbm, ffmi, idealBW, upperBF, lowerBF, tdee, usedBF, bfEstimated, ageAdj } = R;
+  const bfLabel = bfEstimated ? 'Body Fat ~' : 'Body Fat';
+  document.getElementById('stats-row').innerHTML = [
+    [usedBF.toFixed(1)+'%', bfLabel],
+    [lbm.toFixed(1), 'LBM (lbs)'],
+    [ffmi.toFixed(1), 'FFMI'],
+    [idealBW.toFixed(0), 'Ideal BW'],
+    [tdee.toLocaleString(), 'Est. TDEE'],
+  ].map(([v,l]) => `<div class="stat-chip"><div class="sv">${v}</div><div class="sl">${l}</div></div>`).join('');
+  const ceiling = S.sex === 'male' ? 23 : 21;
+  document.getElementById('ffmi-warn').hidden = ffmi < ceiling;
+  // Maintenance macros are fixed to TDEE — render once here
+  document.getElementById('maint-macros').innerHTML = macroTiles(macros(tdee, lbm));
+}
+
+function renderPhaseSelector() {
+  const { suggestedPhase, suggestionReason } = R;
+  const cur = S.selectedPhase;
+
+  const phaseOptions = suggestedPhase === 'reverse'
+    ? [{ key:'reverse', label:'Reverse Diet', col:'var(--yellow)' },
+       { key:'cut',     label:'Cut',          col:'var(--red)' },
+       { key:'maintain',label:'Maintain',     col:'var(--blue)' },
+       { key:'bulk',    label:'Bulk',         col:'var(--green)' }]
+    : [{ key:'cut',     label:'Cut',          col:'var(--red)' },
+       { key:'maintain',label:'Maintain',     col:'var(--blue)' },
+       { key:'bulk',    label:'Bulk',         col:'var(--green)' }];
+
+  const phaseHTML = phaseOptions.map(p => {
+    const isActive = cur === p.key;
+    const isSuggested = suggestedPhase === p.key;
+    return `<button class="phase-sel-btn${isActive ? ' active' : ''}"
+                    style="--pcolor:${p.col}"
+                    onclick="selectPhase('${p.key}')">
+              ${p.label}${isSuggested ? '<span class="rec-badge">Suggested</span>' : ''}
+            </button>`;
+  }).join('');
+
+  const isRatePhase = cur === 'cut' || cur === 'bulk';
+  let rateHTML = '';
+  if (isRatePhase) {
+    const rates = PHASE_RATES[cur];
+    const dir = cur === 'cut' ? 'loss' : 'gain';
+    const rateButtons = ['slow','medium','fast'].map(r => {
+      const isActive = S.selectedRate === r;
+      const isSuggestedRate = R.suggestedPhase === cur && R.suggestedRate === r;
+      const lbsWk = (rates[r].pct * S.bw).toFixed(1);
+      return `<button class="tog-btn${isActive ? ' active' : ''}" onclick="selectRate('${r}')">
+                ${rates[r].label}${isSuggestedRate ? '<span class="rec-badge" style="margin-left:4px">Rec</span>' : ''}<br>
+                <small style="font-weight:400;opacity:.8;font-size:11px">~${lbsWk} lb/wk ${dir}</small>
+              </button>`;
+    }).join('');
+    rateHTML = `<div style="margin-top:14px">
+      <div class="sec-label" style="margin-bottom:8px">Rate</div>
+      <div class="tog-row">${rateButtons}</div>
+    </div>`;
+  }
+
+  const colorMap = { cut:'cut', bulk:'bulk', maintain:'maintain', reverse:'reverse' };
+  const pc = document.getElementById('phase-card');
+  pc.className = `phase-card ${colorMap[cur] || 'maintain'}`;
+  pc.innerHTML = `
+    <div class="sec-label" style="margin-bottom:8px">Recommendation</div>
+    <div class="phase-reason" style="margin-bottom:16px">${suggestionReason}</div>
+    <div class="sec-label" style="margin-bottom:8px">Your Phase</div>
+    <div class="phase-sel-row">${phaseHTML}</div>
+    ${rateHTML}`;
+}
+
+function selectPhase(phase) {
+  S.selectedPhase = phase;
+  renderPhaseSelector();
+  updatePhaseMacros();
+}
+
+function selectRate(rate) {
+  S.selectedRate = rate;
+  renderPhaseSelector();
+  updatePhaseMacros();
+}
+
+function updatePhaseMacros() {
+  const { tdee, lbm } = R;
+  let phaseCals, phaseNote = '';
+
+  if (S.selectedPhase === 'reverse') {
+    phaseCals = tdee;
+    phaseNote = 'Add 50–100 cal/week until you reach 14–15 cal/lb of bodyweight, then reassess your phase.';
+  } else if (S.selectedPhase === 'cut') {
+    const { pct } = PHASE_RATES.cut[S.selectedRate];
+    phaseCals = tdee - (pct * S.bw * 3500) / 7;
+    phaseNote = `Target: ~${(S.bw * pct).toFixed(1)} lb/week loss`;
+  } else if (S.selectedPhase === 'bulk') {
+    const { pct } = PHASE_RATES.bulk[S.selectedRate];
+    phaseCals = tdee + (pct * S.bw * 3500) / 7;
+    phaseNote = `Target: ~${(S.bw * pct).toFixed(1)} lb/week gain`;
+  } else {
+    phaseCals = tdee;
+    phaseNote = 'Hit your numbers and let training drive the adaptation.';
+  }
+
+  const pMacros = macros(phaseCals, lbm);
+  const pLabels = { cut:'Cut Target', bulk:'Bulk Target', maintain:'Maintenance', reverse:'Reverse Diet Start' };
+  document.getElementById('phase-sec-label').textContent = pLabels[S.selectedPhase] || 'Your Target';
+  document.getElementById('phase-macros').innerHTML = macroTiles(pMacros);
+  document.getElementById('phase-note').textContent = phaseNote;
+
+  if (S.splitOn) {
+    const rd = 7 - S.days;
+    const tCal = (phaseCals * 7) / (S.days + .9 * rd);
+    document.getElementById('split-t').innerHTML = macroTiles(macros(tCal, lbm));
+    document.getElementById('split-r').innerHTML = macroTiles(macros(tCal * .9, lbm));
+    show('split-card', true);
+    show('split-t', true); show('split-r', false);
+    document.querySelectorAll('.split-tab').forEach((b,i) => b.classList.toggle('active', i === 0));
+  } else {
+    show('split-card', false);
+  }
+}
+
+function macroTiles(m) {
+  return `
+    <div class="m-tile cal"><div class="m-val">${m.kcal.toLocaleString()}</div><div class="m-unit">kcal</div><div class="m-label">Calories</div></div>
+    <div class="m-tile protein"><div class="m-val">${m.p}</div><div class="m-unit">g</div><div class="m-label">Protein</div></div>
+    <div class="m-tile carbs"><div class="m-val">${m.c}</div><div class="m-unit">g</div><div class="m-label">Carbs</div></div>
+    <div class="m-tile fat"><div class="m-val">${m.f}</div><div class="m-unit">g</div><div class="m-label">Fat</div></div>`;
+}
+
+function splitTab(t) {
+  show('split-t', t==='t'); show('split-r', t==='r');
+  document.querySelectorAll('.split-tab').forEach((b,i) => b.classList.toggle('active', (i===0&&t==='t')||(i===1&&t==='r')));
+}
+
+// ─── CLIENT UNLOCK ────────────────────────────────────────────────────────────
+// ← Change the password below for your clients
+const CLIENT_PW = 'based';
+
+function unlock() {
+  const v = document.getElementById('pw-inp').value.trim().toLowerCase();
+  if (v === CLIENT_PW) {
+    show('lock-sec', false); show('client-sec', true);
+    document.getElementById('pw-err').textContent = '';
+    document.getElementById('client-content').innerHTML = `
+      <div style="background:var(--card2);border-radius:10px;padding:20px;text-align:center">
+        <div style="font-size:28px;margin-bottom:10px">🏗️</div>
+        <div style="font-weight:700;margin-bottom:6px">Block Periodization — Coming Soon</div>
+        <div style="font-size:13px;color:var(--fg2)">Your macros will auto-adjust through each training block here.<br>Check back after your next coach check-in.</div>
+      </div>`;
+  } else {
+    document.getElementById('pw-err').textContent = 'Incorrect code. Ask your coach for access.';
+  }
+}
+</script>
+
+</body>
+</html>
